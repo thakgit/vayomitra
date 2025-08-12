@@ -1,25 +1,24 @@
-# root
-.DS_Store
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Python (backend)
-backend/.venv/
-backend/__pycache__/
-backend/.pytest_cache/
-backend/.mypy_cache/
-backend/*.sqlite3
-backend/*.db
-backend/journal.db
-backend/data/audio/*
-!backend/data/stories.json  # keep stories in repo
+node_modules
+dist
+dist-ssr
+*.local
 
-# Node (frontend)
-frontend/node_modules/
-frontend/.env.local
-frontend/.env.*
-!frontend/.env.example
-frontend/build/
-frontend/.parcel-cache/
-
-# Local Netlify folder
-.netlify
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
