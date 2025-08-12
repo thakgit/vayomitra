@@ -1,0 +1,121 @@
+/* ---------- Base ---------- */
+:root {
+  --bg: #0b1220;
+  --bg-2: #0f172a;
+  --fg: #e5e7eb;
+  --muted: #94a3b8;
+  --primary: #60a5fa;
+  --card-border: #1f2937;
+  --pill-bg: #0f172a;
+  --pill-border: #1f2937;
+  --shadow: 0 8px 30px rgba(0,0,0,.25);
+  --radius-xl: 18px;
+  --radius: 12px;
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--fg);
+}
+a { color: #93c5fd; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.vm-app { min-height: 100vh; }
+.vm-main { max-width: 1150px; margin: 0 auto; padding: 0 18px 56px; }
+
+/* ---------- Top brand strip ---------- */
+.vm-nav {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  padding: 10px 18px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--card-border);
+}
+.vm-nav__brand { font-weight: 900; letter-spacing: .2px; font-size: 18px; }
+.vm-nav__brand span { color: var(--primary); }
+.vm-nav__links { display: flex; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+.vm-nav__links a { color: var(--fg); opacity:.9; }
+.vm-nav__links a:hover { opacity:1; text-decoration:none; }
+
+/* ---------- Hero ---------- */
+.vm-header { box-shadow: var(--shadow); }
+.vm-hero {
+  max-width: 1150px; margin: 24px auto 8px; padding: 0 18px;
+}
+.vm-hero h1 {
+  margin: 0 0 4px;
+  font-size: 36px; font-weight: 800; letter-spacing:.2px;
+}
+.vm-hero .muted { color: var(--fg); font-weight: 600; opacity:.9; }
+.vm-hero__sub { color: var(--muted); margin: 0; }
+
+/* ---------- Tabs (pills) ---------- */
+.vm-tabs {
+  max-width: 1150px; margin: 14px auto 10px; padding: 0 18px;
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  color: var(--fg);
+  box-shadow: 0 2px 6px rgba(0,0,0,.15) inset;
+  font-weight: 600;
+}
+.pill--active {
+  outline: 2px solid rgba(96,165,250,.35);
+  background: linear-gradient(180deg, rgba(96,165,250,.20), rgba(96,165,250,.08));
+}
+
+/* ---------- Accessibility bar ---------- */
+.vm-access { background: var(--bg-2); border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
+.vm-access__row { max-width:1150px; margin:0 auto; padding:10px 18px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+.vm-access__group { display:flex; gap:8px; align-items:center; }
+.vm-access__label { opacity:.85; font-size: 14px; }
+.btn { cursor:pointer; border:1px solid #334155; background:#111827; color:var(--fg); padding:6px 10px; border-radius:10px; font-size:14px; }
+.btn--primary { background:#2563eb; border-color:#1d4ed8; }
+.btn--ghost { background:transparent; }
+.vm-switch input { vertical-align: middle; margin-right: 6px; }
+
+/* ---------- Sections & cards ---------- */
+.vm-section { margin: 18px 0 26px; }
+.vm-section__title { margin: 0 0 6px; font-size: 22px; }
+.vm-section__subtitle { margin: 0 0 12px; color: var(--muted); }
+
+.vm-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* ---------- Controls ---------- */
+.story-controls { display:flex; gap:12px; flex-wrap:wrap; margin-bottom: 10px; }
+.story-controls select {
+  background: var(--bg-2); color: var(--fg);
+  border:1px solid #334155; border-radius:10px; padding:6px 8px;
+}
+.reading-box { line-height: 1.6; }
+
+/* ---------- Tip ---------- */
+.vm-tip { margin-top:10px; padding:10px 12px; border-radius:12px; background: var(--bg-2); border:1px solid var(--card-border); }
+
+/* ---------- Footer ---------- */
+.vm-footer {
+  max-width:1150px; margin: 36px auto 16px; padding:10px 18px;
+  color: var(--muted); display:flex; align-items:center; justify-content:space-between;
+  border-top:1px solid var(--card-border);
+}
+
+/* ---------- High Contrast (toggled by body.hc via UiContext) ---------- */
+body.hc { background:#000; color:#fff; }
+body.hc .vm-nav, body.hc .vm-access, body.hc .vm-card, body.hc .vm-tip, body.hc .pill { background:#000 !important; }
+body.hc .vm-card, body.hc .vm-tip, body.hc .vm-nav, body.hc .vm-access, body.hc .vm-footer, body.hc .pill { border-color:#fff !important; }
+body.hc a { color:#fff !important; }
+body.hc .btn { background:#000; color:#fff; border-color:#fff; }
