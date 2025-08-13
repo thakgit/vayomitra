@@ -40,15 +40,10 @@ a:hover { text-decoration: underline; }
 .vm-nav__links a { color: var(--fg); opacity:.9; }
 .vm-nav__links a:hover { opacity:1; text-decoration:none; }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero (optional) ---------- */
 .vm-header { box-shadow: var(--shadow); }
-.vm-hero {
-  max-width: 1150px; margin: 24px auto 8px; padding: 0 18px;
-}
-.vm-hero h1 {
-  margin: 0 0 4px;
-  font-size: 36px; font-weight: 800; letter-spacing:.2px;
-}
+.vm-hero { max-width: 1150px; margin: 24px auto 8px; padding: 0 18px; }
+.vm-hero h1 { margin: 0 0 4px; font-size: 36px; font-weight: 800; letter-spacing:.2px; }
 .vm-hero .muted { color: var(--fg); font-weight: 600; opacity:.9; }
 .vm-hero__sub { color: var(--muted); margin: 0; }
 
@@ -106,8 +101,7 @@ a:hover { text-decoration: underline; }
 /* ---------- Tip ---------- */
 .vm-tip { margin-top:10px; padding:10px 12px; border-radius:12px; background: var(--bg-2); border:1px solid var(--card-border); }
 
-/* Footer ribbon */
-/* Footer */
+/* ---------- Footer ribbon ---------- */
 .vm-footer { margin-top: 24px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,.08); }
 .vm-footer__inner { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 14px; opacity: .9; }
 .vm-footer__logo { display: inline-flex; width: 18px; height: 18px; margin-right: 4px; opacity: .95; }
@@ -122,3 +116,48 @@ body.hc .vm-nav, body.hc .vm-access, body.hc .vm-card, body.hc .vm-tip, body.hc 
 body.hc .vm-card, body.hc .vm-tip, body.hc .vm-nav, body.hc .vm-access, body.hc .vm-footer, body.hc .pill { border-color:#fff !important; }
 body.hc a { color:#fff !important; }
 body.hc .btn { background:#000; color:#fff; border-color:#fff; }
+
+/* ==== Two-column layout (left rail + main) ==== */
+.vm-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
+@media (max-width: 992px){
+  .vm-grid { grid-template-columns: 1fr; }
+  .vm-rail { position: static; } /* avoid sticky jump on mobile */
+}
+
+/* ==== Left Rail ==== */
+.vm-rail{
+  position: sticky; top: 16px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+.vm-rail__brand{
+  display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:12px;
+  background:linear-gradient(135deg, rgba(68,88,255,.12), rgba(0,0,0,.12));
+  border:1px solid rgba(255,255,255,.08);
+}
+.vm-rail__brand-copy{ line-height:1.15; }
+.vm-rail__name{ font-weight:800; letter-spacing:.2px; }
+.vm-rail__caption{ opacity:.70; font-size:12px; margin-top:2px; }
+.vm-rail__credit{ opacity:.85; font-size:12px; margin-top:6px; }
+.vm-rail__credit strong{ font-weight:700; }
+
+.vm-rail__quote{
+  padding:12px; border-radius:12px; background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.vm-rail__quote-label{ font-size:12px; opacity:.8; margin-bottom:4px; }
+.vm-rail__quote-text{ font-size:15px; }
+
+.vm-rail__family{ display:flex; flex-direction:column; gap:10px; }
+.vm-rail__fam-item{
+  display:flex; gap:10px; align-items:center; padding:10px; border-radius:12px;
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07);
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+.vm-rail__fam-item:hover{
+  background:rgba(255,255,255,.05); border-color: rgba(255,255,255,.12);
+}
+.vm-rail__avatar{ width:46px; height:46px; border-radius:12px; object-fit:cover; }
+.vm-rail__fam-name{ font-weight:700; }
+.vm-rail__fam-msg{ opacity:.9; }
+.vm-rail__emoji{ margin-left:4px; }

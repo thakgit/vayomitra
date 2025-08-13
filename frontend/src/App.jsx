@@ -19,13 +19,16 @@ import RelatedStories from "./components/RelatedStories.jsx";
 
 import { ToastProvider, useToast } from "./components/Toast.jsx";
 import { analyzeSentiment, getDailyTip, warmBackend } from "./services/api";
+import LeftRail from "./components/LeftRail.jsx";
 
 import "./App.css";
 
 function TipOfDay() {
   const [tip, setTip] = useState("");
   useEffect(() => {
-    getDailyTip().then(d => setTip(d?.tip || "Have a peaceful day.")).catch(() => setTip("Have a peaceful day."));
+    getDailyTip()
+      .then(d => setTip(d?.tip || "Have a peaceful day."))
+      .catch(() => setTip("Have a peaceful day."));
   }, []);
   return <div className="vm-tip"><strong>🌞 Tip:</strong> {tip}</div>;
 }
@@ -35,8 +38,10 @@ function AppInner() {
   const [lastMoodText, setLastMoodText] = useState("");
   const [currentStory, setCurrentStory] = useState(null);
   const toast = useToast();
+
+  // warm backend once
   useEffect(() => { warmBackend(); }, []);
-  
+
   const handleAnalyze = async (text) => {
     setLastMoodText(text);
     try {
@@ -53,48 +58,57 @@ function AppInner() {
       <AccessibilityBar />
 
       <main className="vm-main">
-        <SectionShell id="home" title="Welcome" subtitle="Your calm daily companion">
-          <Dashboard />
-          <TipOfDay />
-          <AgentSuggest mood={lastMoodText} onOpen={(id) => setPickedFromSearch(id)} />
-        </SectionShell>
+        {/* NEW: two-column layout with LeftRail on the left */}
+        <div className="vm-grid">
+          <aside>
+            <LeftRail />
+          </aside>
 
-        <SectionShell id="sentiment" title="Mood Check-in" subtitle="Write a few words and analyze your mood">
-          <SentimentBox onAnalyze={handleAnalyze} />
-        </SectionShell>
+          <div>
+            <SectionShell id="home" title="Welcome" subtitle="Your calm daily companion">
+              <Dashboard />
+              <TipOfDay />
+              <AgentSuggest mood={lastMoodText} onOpen={(id) => setPickedFromSearch(id)} />
+            </SectionShell>
 
-        <SectionShell id="stories" title="Stories" subtitle="Search, pick, and listen">
-          <StoriesSearch onOpen={(id) => setPickedFromSearch(id)} />
-          <StoryPicker
-            externalSelectedId={pickedFromSearch}
-            onStoryChange={(s) => setCurrentStory(s)}
-          />
-          <RelatedStories story={currentStory} onOpen={(id) => setPickedFromSearch(id)} />
-        </SectionShell>
+            <SectionShell id="sentiment" title="Mood Check-in" subtitle="Write a few words and analyze your mood">
+              <SentimentBox onAnalyze={handleAnalyze} />
+            </SectionShell>
 
-        <SectionShell id="tips" title="Daily Tips" subtitle="Sample tips UI (now calls backend)">
-          <TipsMock />
-        </SectionShell>
+            <SectionShell id="stories" title="Stories" subtitle="Search, pick, and listen">
+              <StoriesSearch onOpen={(id) => setPickedFromSearch(id)} />
+              <StoryPicker
+                externalSelectedId={pickedFromSearch}
+                onStoryChange={(s) => setCurrentStory(s)}
+              />
+              <RelatedStories story={currentStory} onOpen={(id) => setPickedFromSearch(id)} />
+            </SectionShell>
 
-        <SectionShell id="audio" title="Audio Gallery" subtitle="Featured videos & guided sessions">
-          <VideoGallery />
-        </SectionShell>
+            <SectionShell id="tips" title="Daily Tips" subtitle="Sample tips UI (now calls backend)">
+              <TipsMock />
+            </SectionShell>
 
-        <SectionShell id="journal" title="Journal" subtitle="Write privately and get a brief summary">
-          <Journal />
-        </SectionShell>
+            <SectionShell id="audio" title="Audio Gallery" subtitle="Featured videos & guided sessions">
+              <VideoGallery />
+            </SectionShell>
 
-        <SectionShell id="care" title="Care Circle" subtitle="Invite family to contribute">
-          <CareCircleMock />
-        </SectionShell>
+            <SectionShell id="journal" title="Journal" subtitle="Write privately and get a brief summary">
+              <Journal />
+            </SectionShell>
 
-        <SectionShell id="settings" title="Medicine Reminders" subtitle="Create quick reminders">
-          <MedicineReminder />
-        </SectionShell>
+            <SectionShell id="care" title="Care Circle" subtitle="Invite family to contribute">
+              <CareCircleMock />
+            </SectionShell>
 
-        <SectionShell id="about" title="About VayoMitra" subtitle="Compassion + Calm + Connection">
-          <p>VayoMitra is a privacy-first companion. Nothing here is medical advice—just supportive guidance and peaceful content.</p>
-        </SectionShell>
+            <SectionShell id="settings" title="Medicine Reminders" subtitle="Create quick reminders">
+              <MedicineReminder />
+            </SectionShell>
+
+            <SectionShell id="about" title="About VayoMitra" subtitle="Compassion + Calm + Connection">
+              <p>VayoMitra is a privacy-first companion. Nothing here is medical advice—just supportive guidance and peaceful content.</p>
+            </SectionShell>
+          </div>
+        </div>
       </main>
 
       <Footer />
