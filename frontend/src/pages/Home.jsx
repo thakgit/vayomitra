@@ -1,13 +1,19 @@
 import React from "react";
+import LeftRail from "../components/LeftRail.jsx";
 import SentimentBox from "../components/SentimentBox.jsx";
 import AgentSuggest from "../components/AgentSuggest.jsx";
+
 export default function Home() {
   return (
-    <section style={{ display: "grid", gap: 14 }}>
-      <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Home</h1>
-      <div style={{ background: "#111a2b", border: "1px solid #22304b", borderRadius: 14, padding: 16 }}>
+    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
+      <aside className="hidden lg:block">
+        <LeftRail />
+      </aside>
+      <section className="grid gap-4">
+        <h1 className="text-xl font-semibold">Home</h1>
         <SentimentBox />
-      </div>
-    </section>
+        <AgentSuggest />
+      </section>
+    </div>
   );
 }

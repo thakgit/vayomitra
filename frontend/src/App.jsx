@@ -1,5 +1,9 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+
+import Header from "./components/Header";
+import AccessibilityBar from "./components/AccessibilityBar";
+import Footer from "./components/Footer";
 import TopNav from "./components/TopNav";
 
 import Home from "./pages/Home";
@@ -13,12 +17,11 @@ import Settings from "./pages/Settings";
 
 export default function App() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <header style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 16px 10px" }}>
-        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>VayoMitra — a gentle companion</div>
+    <div>
+      <Header />
+      <AccessibilityBar />
+      <div className="container">
         <TopNav />
-      </header>
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "10px 16px 32px", width: "100%" }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/stories" element={<Stories />} />
@@ -29,7 +32,8 @@ export default function App() {
           <Route path="/family" element={<Family />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
-      </main>
+      </div>
+      <Footer />
     </div>
   );
 }
