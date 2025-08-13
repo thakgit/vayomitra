@@ -3,10 +3,8 @@ base    = "frontend"
 publish = "build"
 command = "CI= npm run build"
 
-# Proxy all frontend calls like /api/agent/recommend?... to ngrok,
-# and append the bypass param so ngrok doesn't show the warning page.
 [[redirects]]
   from = "/api/*"
-  to   = "https://b32cb8514755.ngrok-free.app/:splat?ngrok-skip-browser-warning=true"
+  to   = "https://b32cb8514755.ngrok-free.app/:splat"
   status = 200
   force  = true

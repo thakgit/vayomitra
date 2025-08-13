@@ -8,15 +8,25 @@ const RAW_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
 const BASE = RAW_BASE.replace(/\/+$/, "");
 
 // Helper to build URLs with query params (no new URL() needed)
+// Automatically adds ngrok-skip-browser-warning=true when using /api proxy
 function url(path, params) {
-  const qs = params
-    ? Object.entries(params)
-        .filter(([, v]) => v !== undefined && v !== null && v !== "")
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-        .join("&")
-    : "";
+  // Add bypass flag only if we're using the Netlify proxy (/api)
+  const addBypass =
+    BASE.startsWith("/api")
+      ? { "ngrok-skip-browser-warning": "true" }
+      : {};
+
+  // Merge bypass flag with provided params
+  const allParams = { ...(params || {}), ...addBypass };
+
+  const qs = Object.entries(allParams)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join("&");
+
   return `${BASE}${path.startsWith("/") ? "" : "/"}${path}${qs ? `?${qs}` : ""}`;
 }
+
 
 // ---- Mood / Tips ----
 export async function analyzeSentiment(text) {
