@@ -24,14 +24,12 @@ export default function LeftRail() {
 
   return (
     <aside className="vm-rail">
-      {/* BRAND BANNER (replaces text “VayoMitra — a gentle companion …”) */}
-      <div className="vm-rail__banner">
-        <img
-          src={banner}
-          alt="VayoMitra — a gentle companion. AI co-created with Jayesh Thakkar."
-          loading="eager"
-        />
-      </div>
+{/* BRAND BANNER
+<div className="vm-rail__banner">
+  <img src={banner} alt="VayoMitra — a gentle companion..." />
+</div>
+*/}
+
 
       {/* Spiritual quote */}
       <div className="vm-rail__quote">

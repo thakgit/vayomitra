@@ -167,3 +167,17 @@ body.hc .btn { background:#000; color:#fff; border-color:#fff; }
 .vm-rail__fam-name{ font-weight:700; }
 .vm-rail__fam-msg{ opacity:.9; }
 .vm-rail__emoji{ margin-left:4px; }
+
+/* Brand row in the hero header */
+.vm-hero__brand{
+  display:flex; align-items:center; gap:10px;
+}
+.vm-hero__title{
+  margin:0; font-size:36px; font-weight:800; letter-spacing:.2px;
+}
+.vm-brand{ color: var(--primary); }
+
+/* Smaller on narrow screens */
+@media (max-width: 640px){
+  .vm-hero__title{ font-size:28px; }
+}
