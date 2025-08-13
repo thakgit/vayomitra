@@ -6,3 +6,5 @@ python -m uvicorn main:app --reload
 
 
 ngrok http http://localhost:8000 
+
+worker: email capture: https://vayomitraemail.thakkar-jayesh.workers.dev/capture
