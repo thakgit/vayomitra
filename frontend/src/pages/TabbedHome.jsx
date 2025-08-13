@@ -1,5 +1,4 @@
-import React from "react";
-import Tabs from "../components/Tabs.jsx";
+import React, { useEffect, useState, useMemo } from "react";
 
 import Dashboard from "../components/Dashboard.jsx";
 import AgentSuggest from "../components/AgentSuggest.jsx";
@@ -8,13 +7,8 @@ import StoryPicker from "../components/StoryPicker.jsx";
 import RelatedStories from "../components/RelatedStories.jsx";
 
 /**
- * Props expected from AppInner:
- * - TipSlot: React element to render TipOfDay (so we don't relocate that component)
- * - mood: string (from lastMoodText)
- * - onOpen: fn(id) to open a story from search (sets pickedFromSearch)
- * - pickedFromSearch: string | null
- * - onStoryChange: fn(story) to update currentStory
- * - currentStory: object | null
+ * Renders only content. Active panel is controlled by Header via "vm:switchTab".
+ * Props: TipSlot, mood, onOpen, pickedFromSearch, onStoryChange, currentStory
  */
 export default function TabbedHome({
   TipSlot = null,
@@ -22,17 +16,26 @@ export default function TabbedHome({
   onOpen,
   pickedFromSearch,
   onStoryChange,
-  currentStory
+  currentStory,
 }) {
-  const HomeTab = (
+  const [tab, setTab] = useState("home");
+
+  // Listen for header pill clicks
+  useEffect(() => {
+    const handler = (e) => setTab(String(e.detail) === "stories" ? "stories" : "home");
+    window.addEventListener("vm:switchTab", handler);
+    return () => window.removeEventListener("vm:switchTab", handler);
+  }, []);
+
+  const HomePanel = useMemo(() => (
     <div style={{ display: "grid", gap: 12 }}>
       <Dashboard />
       {TipSlot}
       <AgentSuggest mood={mood} onOpen={onOpen} />
     </div>
-  );
+  ), [TipSlot, mood, onOpen]);
 
-  const StoriesTab = (
+  const StoriesPanel = useMemo(() => (
     <div style={{ display: "grid", gap: 16 }}>
       <StoriesSearch onOpen={onOpen} />
       <StoryPicker
@@ -41,12 +44,7 @@ export default function TabbedHome({
       />
       <RelatedStories story={currentStory} onOpen={onOpen} />
     </div>
-  );
+  ), [onOpen, pickedFromSearch, onStoryChange, currentStory]);
 
-  const items = [
-    { id: "home",    label: "Home",    content: HomeTab },
-    { id: "stories", label: "Stories", content: StoriesTab },
-  ];
-
-  return <Tabs items={items} initialId="home" />;
+  return tab === "stories" ? StoriesPanel : HomePanel;
 }

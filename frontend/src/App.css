@@ -147,6 +147,7 @@ body.hc .btn { background:#000; color:#fff; border-color:#fff; }
 .vm-rail__credit{ opacity:.85; font-size:12px; margin-top:6px; }
 .vm-rail__credit strong{ font-weight:700; }
 
+/* (legacy quote styles—safe to keep if used elsewhere) */
 .vm-rail__quote{
   padding:12px; border-radius:12px; background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.08);
@@ -154,6 +155,7 @@ body.hc .btn { background:#000; color:#fff; border-color:#fff; }
 .vm-rail__quote-label{ font-size:12px; opacity:.8; margin-bottom:4px; }
 .vm-rail__quote-text{ font-size:15px; }
 
+/* Family messages (left rail) */
 .vm-rail__family{ display:flex; flex-direction:column; gap:10px; }
 .vm-rail__fam-item{
   display:flex; gap:10px; align-items:center; padding:10px; border-radius:12px;
@@ -179,3 +181,91 @@ body.hc .btn { background:#000; color:#fff; border-color:#fff; }
 .vm-field span{ display:block; font-size:14px; opacity:.8; margin-bottom:6px; }
 .vm-field input{ width:100%; padding:10px 12px; border-radius:10px; background:#0b1220; color:#e5e7eb; border:1px solid #334155; }
 .vm-modal__actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:6px; }
+
+/* === Spiritual Quote (upgraded & rectangular, no overlap) === */
+
+/* Remove default UA margins from <figure> that caused overlap */
+figure.vm-quote-card { margin: 0; }
+
+.vm-quote-card{
+  background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 140px;
+}
+
+/* If the quote card is inside the left rail, ensure it respects the column width */
+.vm-rail .vm-quote-card{
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+/* Quote header + refresh button */
+.vm-quote-header{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.vm-quote-icon{ font-size: 1.05rem; }
+.vm-quote-title{
+  font-size: .88rem; font-weight: 800; letter-spacing: .6px;
+  text-transform: uppercase; color: rgba(255,255,255,.9);
+}
+.vm-quote-refresh{
+  margin-left:auto; cursor:pointer;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.9);
+  font-size: .95rem; line-height: 1;
+  padding: 6px 10px; border-radius: 999px;
+  transition: background .2s ease, transform .05s ease, color .2s ease, border-color .2s ease;
+}
+.vm-quote-refresh:hover{ background: rgba(255,255,255,.12); color:#fff; border-color: rgba(255,255,255,.25); }
+.vm-quote-refresh:active{ transform: translateY(1px); }
+
+/* Quote body */
+.vm-quote-text{
+  margin: 0;
+  padding: 12px 0 2px 12px;
+  border-left: 4px solid rgba(255,255,255,.18);
+  font-size: 1.12rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #f3f3f3;
+  line-height: 1.55;
+}
+.vm-quote-mark{ opacity:.9; font-size: 1.25rem; margin: 0 .15rem; }
+
+/* Optional author line */
+.vm-quote-author{
+  margin-top: 8px;
+  font-size: .95rem;
+  font-weight: 700;
+  opacity: .88;
+  display: flex; align-items: center; gap: 8px;
+}
+.vm-quote-author img{
+  width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
+  flex: 0 0 24px;
+}
+
+.vm-quote-hint{
+  margin-top: 8px;
+  font-size: .78rem;
+  color: rgba(255,255,255,.6);
+}
+
+/* Fade-in when quote changes */
+.vm-quote-fade{ animation: vmQuoteFade .35s ease both; }
+@keyframes vmQuoteFade{
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .vm-quote-fade{ animation: none; }
+  .vm-quote-refresh{ transition: none; }
+}

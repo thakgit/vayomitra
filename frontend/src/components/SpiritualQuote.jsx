@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
-// Keep your favorite first so it appears regularly
+/**
+ * QUOTES can be either strings or objects:
+ * - "Be here now."
+ * - { text: "Be here now.", author: "Ram Dass", avatar: "/images/ramdass.jpg" }
+ */
 const QUOTES = [
-  "Peace comes from within.",
+  { text: "Peace comes from within.", author: "Buddha" },
   "This too shall pass.",
   "Be here now.",
   "Let your heart guide you.",
   "Inhale peace, exhale worry.",
-  "The quieter you become, the more you can hear.",
-  "Wherever you are, be all there.",
+  { text: "The quieter you become, the more you can hear.", author: "Ram Dass" },
+  { text: "Wherever you are, be all there.", author: "Jim Elliot" },
   "Gratitude turns what we have into enough.",
 ];
 
@@ -17,7 +21,6 @@ function dayKey() {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
-// Deterministic daily index (no network, no hard cache)
 function pickIndexForToday(len) {
   const key = dayKey();
   let h = 0;
@@ -28,11 +31,19 @@ function pickIndexForToday(len) {
 export default function SpiritualQuote() {
   const [idx, setIdx] = useState(0);
 
+  // normalize to { text, author?, avatar? }
+  const current = useMemo(() => {
+    const raw = QUOTES[idx] || "";
+    return typeof raw === "string" ? { text: raw } : raw;
+  }, [idx]);
+
   // initialize from override (if any) or from daily pick
   useEffect(() => {
     const today = dayKey();
     let o = null;
-    try { o = JSON.parse(localStorage.getItem("vm-quote-override") || "null"); } catch {}
+    try {
+      o = JSON.parse(localStorage.getItem("vm-quote-override") || "null");
+    } catch {}
     if (o?.date === today && Number.isInteger(o.idx) && QUOTES[o.idx]) {
       setIdx(o.idx);
     } else {
@@ -40,11 +51,10 @@ export default function SpiritualQuote() {
     }
   }, []);
 
-  // Shuffle to next quote (persists for the rest of the day)
+  // shuffle (persist for the rest of the day); Shift+click resets to daily
   const shuffle = (e) => {
     const today = dayKey();
     if (e?.shiftKey) {
-      // reset to daily pick
       const daily = pickIndexForToday(QUOTES.length);
       setIdx(daily);
       localStorage.removeItem("vm-quote-override");
@@ -52,35 +62,55 @@ export default function SpiritualQuote() {
     }
     const next = (idx + 1) % QUOTES.length;
     setIdx(next);
-    localStorage.setItem("vm-quote-override", JSON.stringify({ date: today, idx: next }));
+    localStorage.setItem(
+      "vm-quote-override",
+      JSON.stringify({ date: today, idx: next })
+    );
   };
 
   return (
-    <div className="vm-rail__quote" style={{ position: "relative" }}>
-      <div className="vm-rail__quote-label">🕯️ Spiritual Quote</div>
-      <div className="vm-rail__quote-text">{QUOTES[idx]}</div>
+    <figure className="vm-quote-card" aria-labelledby="vm-quote-title">
+      <div className="vm-quote-header">
+        <span className="vm-quote-icon" aria-hidden>
+          🕯️
+        </span>
+        <figcaption id="vm-quote-title" className="vm-quote-title">
+          Spiritual Quote
+        </figcaption>
 
-      {/* tiny shuffle button (click to cycle, Shift+click to reset to daily) */}
-      <button
-        className="vm-quote-shuffle"
-        aria-label="Shuffle quote (Shift+click to reset)"
-        title="Shuffle (Shift+click to reset to daily)"
-        onClick={shuffle}
-        style={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          fontSize: 12,
-          padding: "2px 8px",
-          borderRadius: 10,
-          border: "1px solid rgba(255,255,255,.15)",
-          background: "rgba(255,255,255,.06)",
-          color: "inherit",
-          cursor: "pointer",
-        }}
-      >
-        ↻
-      </button>
-    </div>
+        <button
+          className="vm-quote-refresh"
+          aria-label="Shuffle quote (Shift+click to reset today's pick)"
+          title="Shuffle (Shift+click to reset)"
+          onClick={shuffle}
+        >
+          ↻
+        </button>
+      </div>
+
+      <blockquote key={idx} className="vm-quote-text vm-quote-fade">
+        <span className="vm-quote-mark">“</span>
+        {current.text}
+        <span className="vm-quote-mark">”</span>
+      </blockquote>
+
+      {/* Optional author / avatar line */}
+      {(current.author || current.avatar) && (
+        <div className="vm-quote-author">
+          {current.avatar ? (
+            <img
+              src={current.avatar}
+              alt={current.author ? current.author : "Author"}
+              onError={(e) => (e.currentTarget.style.display = "none")}
+            />
+          ) : null}
+          <span>{current.author}</span>
+        </div>
+      )}
+
+      <div className="vm-quote-hint">
+        Click ↻ for a new one • Shift+Click to reset
+      </div>
+    </figure>
   );
 }

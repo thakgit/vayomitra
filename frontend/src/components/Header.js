@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 /* tiny hugging mark (inline SVG, behaves like an emoji) */
 function VayoMark({ size = 28 }) {
@@ -20,44 +20,72 @@ function VayoMark({ size = 28 }) {
 }
 
 export default function Header() {
+  const [active, setActive] = useState("home");
+
+  // stay in sync if some other code switches the tab
+  useEffect(() => {
+    const handler = (e) => setActive(e.detail);
+    window.addEventListener("vm:switchTab", handler);
+    return () => window.removeEventListener("vm:switchTab", handler);
+  }, []);
+
+  const switchTab = (tab) => {
+    setActive(tab);
+    window.dispatchEvent(new CustomEvent("vm:switchTab", { detail: tab }));
+  };
+
+  const pills = [
+    { key: "home",      label: "🏠 Home" },
+    { key: "stories",   label: "📚 Stories" },
+    { key: "reminders", label: "⏰ Reminders" },
+    { key: "videos",    label: "🎬 Videos" },
+    { key: "tips",      label: "🌞 Tips" },
+    { key: "journal",   label: "📝 Journal" },
+    { key: "family",    label: "👨‍👩‍👧 Family" },
+    { key: "settings",  label: "⚙️ Settings" },
+  ];
+
   return (
     <header className="vm-header">
-      {/* Top brand strip (sticky) */}
+      {/* Top brand strip */}
       <div className="vm-nav">
         <div className="vm-nav__brand">Vayo<span>Mitra</span></div>
         <nav className="vm-nav__links">
-          <a href="#home">Home</a>
-          <a href="#stories">Stories</a>
-          <a href="#settings">Reminders</a>
-          <a href="#audio">Videos</a>
-          <a href="#tips">Tips</a>
-          <a href="#journal">Journal</a>
-          <a href="#care">Family</a>
-          <a href="#about">Settings</a>
+          {/* top text links mirror the pills, no scroll */}
+          {pills.map((p) => (
+            <a
+              key={p.key}
+              href="#"
+              onClick={(e) => { e.preventDefault(); switchTab(p.key); }}
+            >
+              {p.label.replace(/^[^\s]+\s/, "") /* label without emoji */}
+            </a>
+          ))}
         </nav>
       </div>
 
-      {/* Hero title + subtitle (only change is the small icon before the title) */}
+      {/* Hero */}
       <div className="vm-hero">
         <h1>
-          <VayoMark />
-          VayoMitra — <span className="muted">a gentle companion</span>
+          <VayoMark /> VayoMitra — <span className="muted">a gentle companion</span>
         </h1>
         <p className="vm-hero__sub">
           Stories, reminders, and warm conversations — in Gujarati, Hindi, and English.
         </p>
       </div>
 
-      {/* Tab pills */}
+      {/* Pill bar (real tabs for the whole page) */}
       <div className="vm-tabs">
-        <a className="pill pill--active" href="#home">🏠 Home</a>
-        <a className="pill" href="#stories">📚 Stories</a>
-        <a className="pill" href="#settings">⏰ Reminders</a>
-        <a className="pill" href="#audio">🎬 Videos</a>
-        <a className="pill" href="#tips">🌞 Tips</a>
-        <a className="pill" href="#journal">📝 Journal</a>
-        <a className="pill" href="#care">👨‍👩‍👧 Family</a>
-        <a className="pill" href="#about">⚙️ Settings</a>
+        {pills.map((p) => (
+          <a
+            key={p.key}
+            className={`pill ${active === p.key ? "pill--active" : ""}`}
+            href="#"
+            onClick={(e) => { e.preventDefault(); switchTab(p.key); }}
+          >
+            {p.label}
+          </a>
+        ))}
       </div>
     </header>
   );
