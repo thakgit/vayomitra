@@ -1,192 +1,266 @@
+// src/components/MedicineReminder.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  remindersAdd, remindersList, remindersToggle,
-  remindersDelete, remindersTest, remindersEvents
+  remindersAdd,
+  remindersList,
+  remindersToggle,
+  remindersDelete,
+  remindersTest,
+  remindersEvents,
 } from "../services/api";
-import { useToast } from "./Toast.jsx";
 
-function toLocalTimeString() {
-  // Returns current time+2 minutes as "HH:MM"
-  const d = new Date(Date.now() + 2 * 60 * 1000);
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
+/** Simple time formatter (shows local time) */
+function fmtTime(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleString(undefined, {
+    year: "numeric", month: "numeric", day: "numeric",
+    hour: "numeric", minute: "2-digit"
+  });
 }
 
 export default function MedicineReminder() {
+  // ---- Reminders CRUD ----
   const [medicine, setMedicine] = useState("");
-  const [timeLocal, setTimeLocal] = useState(toLocalTimeString());
-  const [items, setItems] = useState([]);
+  const [timeLocal, setTimeLocal] = useState("09:00");
+  const [tz, setTz] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago");
+
+  const [reminders, setReminders] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  // ---- Events (and polling) ----
   const [events, setEvents] = useState([]);
-  const [polling, setPolling] = useState(true);
-  const sinceRef = useRef(null);
-  const toast = useToast();
+  const [polling, setPolling] = useState(false);
+  const pollRef = useRef(null);
 
-  const load = async () => {
-    try {
-      const list = await remindersList();
-      setItems(list || []);
-    } catch (e) {
-      console.error(e);
-      toast?.push("Could not load reminders.", "error");
-    }
-  };
+  // Load reminders on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const list = await remindersList();
+        setReminders(Array.isArray(list) ? list : []);
+      } catch (e) {
+        console.error(e);
+        setErr("Could not load reminders.");
+      }
+    })();
+  }, []);
 
+  // Fetch events (manual refresh + used by polling)
   const loadEvents = async () => {
     try {
-      const data = await remindersEvents({ since: sinceRef.current });
-      if (Array.isArray(data) && data.length > 0) {
-        // update "since" to newest event time (ISO)
-        const newest = data[0]?.fired_at;
-        if (newest) sinceRef.current = newest;
-        setEvents(prev => [...data, ...prev].slice(0, 100));
-        // toast the newest event
-        data.forEach(evt => toast?.push(evt.message));
-      }
+      const out = await remindersEvents({ limit: 50 });
+      setEvents(Array.isArray(out) ? out : (out?.events || []));
     } catch (e) {
       console.error(e);
+      setErr("Could not load events.");
     }
   };
 
+  // Polling toggle
   useEffect(() => {
-    load();
-    loadEvents();
-    if (!polling) return;
-    const id = setInterval(loadEvents, 20000); // 20s
-    return () => clearInterval(id);
+    if (!polling) {
+      if (pollRef.current) clearInterval(pollRef.current);
+      pollRef.current = null;
+      return;
+    }
+    // Start polling
+    loadEvents(); // burst once
+    pollRef.current = setInterval(loadEvents, 5000);
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [polling]);
 
-  const add = async () => {
-    if (!medicine.trim() || !timeLocal) return;
+  // ---- De-duplicate events in UI (message+minute) ----
+  const { uniqueEvents, countsMap } = useMemo(() => {
+    const seen = new Map();
+    const counts = new Map();
+
+    // newest first
+    const sorted = [...events].sort((a, b) => {
+      const at = new Date(a.time || a.created_at || a.ts || 0).getTime();
+      const bt = new Date(b.time || b.created_at || b.ts || 0).getTime();
+      return bt - at;
+    });
+
+    for (const e of sorted) {
+      const msg = (e.message || e.msg || e.text || "").trim();
+      const d = new Date(e.time || e.created_at || e.ts || 0);
+      const minuteIso = isNaN(d.getTime())
+        ? ""
+        : new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()).toISOString();
+
+      const key = `${msg}|${minuteIso}`;
+      counts.set(key, (counts.get(key) || 0) + 1);
+      if (!seen.has(key)) seen.set(key, e); // keep newest for that minute+message
+    }
+
+    return { uniqueEvents: Array.from(seen.values()), countsMap: counts };
+  }, [events]);
+
+  // ---- Handlers ----
+  const onAdd = async (e) => {
+    e.preventDefault();
+    setErr("");
+    setBusy(true);
     try {
-      await remindersAdd({ medicine: medicine.trim(), time_local: timeLocal });
+      await remindersAdd({ medicine, time_local: timeLocal, tz });
+      const list = await remindersList();
+      setReminders(Array.isArray(list) ? list : []);
       setMedicine("");
-      toast?.push("Reminder added.");
-      await load();
-    } catch (e) {
-      console.error(e);
-      toast?.push("Could not add reminder.", "error");
+    } catch (err) {
+      console.error(err);
+      setErr("Could not add reminder.");
+    } finally {
+      setBusy(false);
     }
   };
 
-  const toggle = async (id, active) => {
+  const onToggle = async (id, active) => {
+    setErr("");
     try {
       await remindersToggle(id, active);
-      await load();
-      toast?.push(active ? "Reminder enabled." : "Reminder paused.");
+      const list = await remindersList();
+      setReminders(Array.isArray(list) ? list : []);
     } catch (e) {
       console.error(e);
-      toast?.push("Toggle failed.", "error");
+      setErr("Could not toggle reminder.");
     }
   };
 
-  const remove = async (id) => {
+  const onDelete = async (id) => {
+    setErr("");
     try {
       await remindersDelete(id);
-      await load();
-      toast?.push("Reminder deleted.");
+      const list = await remindersList();
+      setReminders(Array.isArray(list) ? list : []);
     } catch (e) {
       console.error(e);
-      toast?.push("Delete failed.", "error");
+      setErr("Could not delete reminder.");
     }
   };
 
-  const test = async (id) => {
+  const onTest = async (id) => {
+    setErr("");
     try {
       await remindersTest(id);
       await loadEvents();
-      toast?.push("Test event fired.");
     } catch (e) {
       console.error(e);
-      toast?.push("Test failed.", "error");
+      setErr("Could not send test notification.");
     }
   };
 
-  const nextDoseHint = useMemo(() => {
-    if (!Array.isArray(items) || items.length === 0) return "";
-    const active = items.filter(r => r.is_active);
-    if (active.length === 0) return "";
-    const times = active.map(r => r.time_local).sort();
-    return `Next scheduled time(s): ${times.join(", ")}`;
-  }, [items]);
-
   return (
-    <div className="vm-form">
-      {/* Add form */}
-      <div className="vm-card" style={{ marginBottom: 12 }}>
-        <h3 style={{ marginTop: 0 }}>⏰ Add Medicine Reminder</h3>
-        <div className="vm-form__row" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+    <div className="reminders">
+      {/* Form */}
+      <div className="vm-card" style={{ marginBottom: 14 }}>
+        <h3 style={{ marginTop: 0 }}>Create a reminder</h3>
+        <form onSubmit={onAdd} style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <input
             value={medicine}
-            onChange={(e) => setMedicine(e.target.value)}
-            placeholder="Medicine name (e.g., Vitamin D)"
-            style={{ flex: 1, minWidth: 220, background: "#0f172a", color: "#e5e7eb", border: "1px solid #334155", borderRadius: 8, padding: "8px 10px" }}
+            onChange={e => setMedicine(e.target.value)}
+            placeholder="Medicine name"
+            required
+            style={{ padding: "8px 10px", borderRadius: 10, border: "1px solid #334155", background: "#0f172a", color: "var(--fg)" }}
           />
           <input
             type="time"
             value={timeLocal}
-            onChange={(e) => setTimeLocal(e.target.value)}
-            style={{ background: "#0f172a", color: "#e5e7eb", border: "1px solid #334155", borderRadius: 8, padding: "8px 10px" }}
+            onChange={e => setTimeLocal(e.target.value)}
+            required
+            style={{ padding: "8px 10px", borderRadius: 10, border: "1px solid #334155", background: "#0f172a", color: "var(--fg)" }}
           />
-          <button className="btn btn--primary" onClick={add}>Add</button>
-        </div>
-        {nextDoseHint && <div className="vm-tip" style={{ marginTop: 8 }}>{nextDoseHint}</div>}
+          <input
+            value={tz}
+            onChange={e => setTz(e.target.value)}
+            placeholder="Time zone (IANA)"
+            style={{ minWidth: 240, padding: "8px 10px", borderRadius: 10, border: "1px solid #334155", background: "#0f172a", color: "var(--fg)" }}
+          />
+          <button className="btn btn--primary" disabled={busy} type="submit">
+            {busy ? "Saving..." : "Add"}
+          </button>
+          {err && <span style={{ color: "#fca5a5", marginLeft: 10 }}>{err}</span>}
+        </form>
       </div>
 
-      {/* List */}
-      <div className="vm-card" style={{ marginBottom: 12 }}>
-        <h3 style={{ marginTop: 0 }}>💊 Reminders</h3>
-        {items.length === 0 ? (
-          <div style={{ color: "#94a3b8" }}>No reminders yet.</div>
+      {/* Reminders list */}
+      <div className="vm-card" style={{ marginBottom: 14 }}>
+        <h3 style={{ marginTop: 0 }}>Your reminders</h3>
+        {reminders.length === 0 ? (
+          <div className="muted">No reminders yet.</div>
         ) : (
-          <div style={{ display: "grid", gap: 8 }}>
-            {items.map(r => (
-              <div key={r.id} style={{ border: "1px solid #1f2937", borderRadius: 10, padding: 10, background: "#0b1220" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-                  <div>
-                    <strong>{r.medicine}</strong>
-                    <div style={{ fontSize: 13, color: "#94a3b8" }}>
-                      at <code>{r.time_local}</code> ({r.tz}) {r.is_active ? "• active" : "• paused"}
-                      {r.last_triggered && <> • last: {new Date(r.last_triggered).toLocaleString()}</>}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn" onClick={() => test(r.id)}>Test</button>
-                    <button className="btn" onClick={() => toggle(r.id, !r.is_active)}>{r.is_active ? "Pause" : "Enable"}</button>
-                    <button className="btn" onClick={() => remove(r.id)}>Delete</button>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {reminders.map(r => (
+              <li key={r.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderTop: "1px solid var(--card-border)" }}>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{r.medicine || r.medicineName || "Medicine"}</div>
+                  <div className="muted" style={{ opacity: .85 }}>
+                    Time: {r.time_local || r.timeLocal || r.time || "—"} &nbsp;|&nbsp; TZ: {r.tz || "—"}
                   </div>
                 </div>
-              </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="btn" onClick={() => onToggle(r.id, !r.active)}>{r.active ? "Disable" : "Enable"}</button>
+                  <button className="btn" onClick={() => onTest(r.id)}>Test</button>
+                  <button className="btn btn--ghost" onClick={() => onDelete(r.id)}>Delete</button>
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
 
-      {/* Events */}
-      <div className="vm-card">
-        <h3 style={{ marginTop: 0 }}>📣 Events</h3>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-          <div style={{ color: "#94a3b8" }}>
-            Newest first. Polling: {polling ? "ON" : "OFF"}
-          </div>
+      {/* Events with de-dup */}
+      <div className="vm-card events">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h3 style={{ marginTop: 0 }}>📢 Events</h3>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn" onClick={loadEvents}>Refresh</button>
-            <button className="btn" onClick={() => setPolling(p => !p)}>{polling ? "Stop" : "Start"} Poll</button>
+            <button className="btn" onClick={() => setPolling(p => !p)}>{polling ? "Stop Poll" : "Start Poll"}</button>
           </div>
         </div>
-        {events.length === 0 ? (
-          <div style={{ color: "#94a3b8" }}>No events yet.</div>
+        <div className="muted" style={{ marginBottom: 10 }}>
+          Newest first. Polling: <strong>{polling ? "ON" : "OFF"}</strong>
+        </div>
+
+        {uniqueEvents.length === 0 ? (
+          <div className="muted">No events yet.</div>
         ) : (
-          <div style={{ display: "grid", gap: 6 }}>
-            {events.map(e => (
-              <div key={`${e.id}-${e.fired_at}`} style={{ border: "1px solid #1f2937", borderRadius: 10, padding: 10, background: "#0b1220" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>{e.message}</div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{new Date(e.fired_at).toLocaleString()}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {uniqueEvents.map(ev => {
+              const msg = (ev.message || ev.msg || ev.text || "").trim() || "—";
+              const t = new Date(ev.time || ev.created_at || ev.ts || 0);
+              const minuteIso = isNaN(t.getTime())
+                ? ""
+                : new Date(t.getFullYear(), t.getMonth(), t.getDate(), t.getHours(), t.getMinutes()).toISOString();
+              const key = `${msg}|${minuteIso}`;
+              const n = countsMap.get(key) || 1;
+
+              return (
+                <li key={ev.id ?? key}
+                    className="vm-card"
+                    style={{ marginBottom: 10, position: "relative", background: "rgba(255,255,255,0.02)" }}>
+                  <div style={{ fontWeight: 600 }}>{msg}</div>
+                  <div className="muted" style={{ opacity: .85 }}>{fmtTime(ev.time || ev.created_at || ev.ts)}</div>
+                  {n > 1 && (
+                    <span style={{
+                      position: "absolute", top: 8, right: 10,
+                      fontSize: 12, opacity: .75,
+                      padding: "2px 6px", borderRadius: 10,
+                      border: "1px solid rgba(255,255,255,.12)",
+                      background: "rgba(255,255,255,.06)"
+                    }}>
+                      ×{n}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
     </div>
