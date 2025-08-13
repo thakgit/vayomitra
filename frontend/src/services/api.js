@@ -1,3 +1,16 @@
+// --- ngrok interstitial bypass for cross-site XHR ---
+if (typeof window !== "undefined" && typeof window.fetch === "function") {
+  const _origFetch = window.fetch;
+  window.fetch = (input, init = {}) => {
+    const headers = new Headers(init.headers || {});
+    // This header tells ngrok to skip the browser warning page
+    headers.set("ngrok-skip-browser-warning", "true");
+    return _origFetch(input, { ...init, headers });
+  };
+}
+// --- end bypass ---
+
+
 // src/services/api.js
 const BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
 export const ttsSynthesize = getAudioUrlFor;
