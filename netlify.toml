@@ -5,7 +5,7 @@ command = "CI= npm run build"
 
 [[redirects]]
   from = "/api/*"
-  to   = "https://b32cb8514755.ngrok-free.app/:splat"
+  to   = "https://a7d73eceeb73.ngrok-free.app/:splat"
   status = 200
   force  = true
 

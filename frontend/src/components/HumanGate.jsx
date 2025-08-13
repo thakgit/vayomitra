@@ -60,7 +60,7 @@ export default function HumanGate({ onVerified }) {
     try {
       setBusy(true);
       // NOTE: you mapped this path in netlify.toml to your function
-      const res = await fetch("/api/auth/turnstile-verify", {
+      const res = await fetch("/.netlify/functions/turnstile-verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // so the Set-Cookie is stored
@@ -70,12 +70,17 @@ export default function HumanGate({ onVerified }) {
         }),
       });
       if (!res.ok) throw new Error(`Verify failed (${res.status})`);
+           const data = await res.json().catch(() => ({}));
+     if (!res.ok || !data?.ok) {
+       const codes = Array.isArray(data?.codes) ? data.codes.join(", ") : "unknown";
+       throw new Error(`Verify failed (${res.status}) — ${codes}`);
+    }
       localStorage.setItem("vm-verified", "1");
       setOpen(false);
       onVerified?.();
     } catch (err) {
       console.error(err);
-      alert("Could not verify right now. Please try again.");
+      alert(err.message || "Could not verify right now. Please try again.");
     } finally {
       setBusy(false);
     }

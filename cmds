@@ -1,0 +1,8 @@
+cd vayomitra-poc\backend
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn main:app --reload
+
+
+ngrok http http://localhost:8000 
