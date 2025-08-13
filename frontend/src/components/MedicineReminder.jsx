@@ -44,8 +44,7 @@ export default function MedicineReminder() {
         data.forEach(evt => toast?.push(evt.message));
       }
     } catch (e) {
-      console.error("Suggest error:", e);
-      setError(e?.message ?? "Could not fetch suggestions.");
+      console.error(e);
     }
   };
 
