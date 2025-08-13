@@ -27,6 +27,12 @@ function url(path, params) {
   return `${BASE}${path.startsWith("/") ? "" : "/"}${path}${qs ? `?${qs}` : ""}`;
 }
 
+export async function warmBackend() {
+  try {
+    // cheap GET that also carries the bypass param via your url() helper
+    await fetch(url("/agent/tip", { period: "warmup", _t: Date.now() }), { cache: "no-store" });
+  } catch { /* ignore */ }
+}
 
 // ---- Mood / Tips ----
 export async function analyzeSentiment(text) {

@@ -18,7 +18,8 @@ import Journal from "./components/Journal.jsx";
 import RelatedStories from "./components/RelatedStories.jsx";
 
 import { ToastProvider, useToast } from "./components/Toast.jsx";
-import { analyzeSentiment, getDailyTip } from "./services/api";
+import { analyzeSentiment, getDailyTip, warmBackend } from "./services/api";
+
 import "./App.css";
 
 function TipOfDay() {
@@ -34,7 +35,8 @@ function AppInner() {
   const [lastMoodText, setLastMoodText] = useState("");
   const [currentStory, setCurrentStory] = useState(null);
   const toast = useToast();
-
+  useEffect(() => { warmBackend(); }, []);
+  
   const handleAnalyze = async (text) => {
     setLastMoodText(text);
     try {

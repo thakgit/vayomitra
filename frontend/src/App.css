@@ -106,12 +106,15 @@ a:hover { text-decoration: underline; }
 /* ---------- Tip ---------- */
 .vm-tip { margin-top:10px; padding:10px 12px; border-radius:12px; background: var(--bg-2); border:1px solid var(--card-border); }
 
-/* ---------- Footer ---------- */
-.vm-footer {
-  max-width:1150px; margin: 36px auto 16px; padding:10px 18px;
-  color: var(--muted); display:flex; align-items:center; justify-content:space-between;
-  border-top:1px solid var(--card-border);
-}
+/* Footer ribbon */
+/* Footer */
+.vm-footer { margin-top: 24px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,.08); }
+.vm-footer__inner { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 14px; opacity: .9; }
+.vm-footer__logo { display: inline-flex; width: 18px; height: 18px; margin-right: 4px; opacity: .95; }
+.vm-footer__brand { font-weight: 600; }
+.vm-footer__sep { opacity: .6; }
+.vm-footer__credit strong { font-weight: 600; }
+.vm-footer__tagline { opacity: .72; }
 
 /* ---------- High Contrast (toggled by body.hc via UiContext) ---------- */
 body.hc { background:#000; color:#fff; }
