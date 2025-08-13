@@ -129,7 +129,13 @@ body.hc .btn { background:#000; color:#fff; border-color:#fff; }
   position: sticky; top: 16px;
   display: flex; flex-direction: column; gap: 16px;
 }
-
+/* Banner image at top of left rail */
+.vm-rail__banner img{
+  width:100%; height:auto; display:block;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+}
 .vm-rail__brand{
   display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:12px;
   background:linear-gradient(135deg, rgba(68,88,255,.12), rgba(0,0,0,.12));
