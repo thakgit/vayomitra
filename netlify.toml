@@ -8,3 +8,14 @@ command = "CI= npm run build"
   to   = "https://b32cb8514755.ngrok-free.app/:splat"
   status = 200
   force  = true
+
+# Map pretty API paths to functions
+[[redirects]]
+  from = "/api/auth/turnstile-verify"
+  to = "/.netlify/functions/turnstile-verify"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth/check"
+  to = "/.netlify/functions/auth-check"
+  status = 200

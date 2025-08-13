@@ -20,7 +20,7 @@ import RelatedStories from "./components/RelatedStories.jsx";
 import { ToastProvider, useToast } from "./components/Toast.jsx";
 import { analyzeSentiment, getDailyTip, warmBackend } from "./services/api";
 import LeftRail from "./components/LeftRail.jsx";
-
+import HumanGate from "./components/HumanGate.jsx";
 import "./App.css";
 
 function TipOfDay() {
@@ -42,6 +42,8 @@ function AppInner() {
   // warm backend once
   useEffect(() => { warmBackend(); }, []);
 
+  const [verified, setVerified] = useState(localStorage.getItem("vm-verified")==="1");
+
   const handleAnalyze = async (text) => {
     setLastMoodText(text);
     try {
@@ -54,6 +56,7 @@ function AppInner() {
 
   return (
     <div className="vm-app">
+      {!verified && <HumanGate onVerified={() => setVerified(true)} />}
       <Header />
       <AccessibilityBar />
 
