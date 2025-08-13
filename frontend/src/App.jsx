@@ -1,8 +1,7 @@
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import TopNav from "./components/TopNav";
 
-// Pages
 import Home from "./pages/Home";
 import Stories from "./pages/Stories";
 import Reminders from "./pages/Reminders";
@@ -13,16 +12,14 @@ import Family from "./pages/Family";
 import Settings from "./pages/Settings";
 
 export default function App() {
-  const loc = useLocation();
   return (
-    <div className="vm-shell" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <header className="vm-header" style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 16px 10px" }}>
-        <div className="vm-title" style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>VayoMitra — a gentle companion</div>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <header style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 16px 10px" }}>
+        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>VayoMitra — a gentle companion</div>
         <TopNav />
       </header>
-
-      <main className="vm-main" style={{ maxWidth: 1100, margin: "0 auto", padding: "10px 16px 32px", width: "100%" }}>
-        <Routes location={loc}>
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "10px 16px 32px", width: "100%" }}>
+        <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/stories" element={<Stories />} />
           <Route path="/reminders" element={<Reminders />} />

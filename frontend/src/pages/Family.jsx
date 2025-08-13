@@ -1,6 +1,5 @@
 import React from "react";
-import CareCircleMock from "../components/CareCircleMock.js"; // change to .jsx if needed
-
+import CareCircleMock from "../components/CareCircleMock.js";
 export default function Family() {
   return (
     <section style={{ display: "grid", gap: 14 }}>

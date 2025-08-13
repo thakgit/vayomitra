@@ -28,7 +28,6 @@ export default function TopNav() {
             background: isActive ? "#0f1a2d" : "transparent",
             border: "1px solid",
             borderColor: isActive ? "#22304b" : "transparent",
-            marginRight: 6
           })}
         >
           {t.label}

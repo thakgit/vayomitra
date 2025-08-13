@@ -1,6 +1,5 @@
 import React from "react";
 import VideoGallery from "../components/VideoGallery.jsx";
-
 export default function Videos() {
   return (
     <section style={{ display: "grid", gap: 14 }}>

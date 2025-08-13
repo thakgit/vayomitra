@@ -1,7 +1,6 @@
 import React from "react";
 import Journal from "../components/Journal.jsx";
-
-export default function JournalPage() {
+export default function Journal() {
   return (
     <section style={{ display: "grid", gap: 14 }}>
       <h1 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Journal</h1>

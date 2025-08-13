@@ -1,6 +1,5 @@
 import React from "react";
 import MedicineReminder from "../components/MedicineReminder.jsx";
-
 export default function Reminders() {
   return (
     <section style={{ display: "grid", gap: 14 }}>

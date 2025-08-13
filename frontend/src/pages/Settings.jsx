@@ -1,5 +1,4 @@
 import React from "react";
-// If you expose preferences via context/hooks, you can add controls here.
 
 export default function Settings() {
   return (
