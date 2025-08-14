@@ -21,6 +21,7 @@ import { ToastProvider, useToast } from "./components/Toast.jsx";
 import { analyzeSentiment, getDailyTip, warmBackend } from "./services/api";
 import LeftRail from "./components/LeftRail.jsx";
 import HumanGate from "./components/HumanGate.jsx";
+import BackendWakeHint from "./components/BackendWakeHint";
 
 import "./App.css";
 
@@ -177,6 +178,7 @@ function AppInner() {
 export default function App() {
   return (
     <ToastProvider>
+      <BackendWakeHint />
       <AppInner />
     </ToastProvider>
   );

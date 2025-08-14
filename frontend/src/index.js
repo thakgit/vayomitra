@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { UiProvider } from "./context/UiContext";
 import "./index.css";
+import "./setupBackendWakeHint";
 
 const rootEl = document.getElementById("root");
 const root = createRoot(rootEl);
