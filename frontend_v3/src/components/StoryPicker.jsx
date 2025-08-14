@@ -68,7 +68,7 @@ export default function StoryPicker({ externalSelectedId, onStoryChange }) {
     try {
       setTtsLoading(true);
       const { url, generated } = await ttsSynthesize(text, lang);
-      setAudioUrl(`${process.env.REACT_APP_API_URL || "http://lchangetolocaocalhost:8000"}${url}`);
+      setAudioUrl(`${process.env.REACT_APP_API_URL || "http://localhost:8000"}${url}`);
       toast?.push(generated ? "Narration ready." : "Demo narration ready.");
     } catch (e) {
       console.error(e);

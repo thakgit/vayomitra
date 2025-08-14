@@ -8,3 +8,5 @@ python -m uvicorn main:app --reload
 ngrok http http://localhost:8000 
 
 worker: email capture: https://vayomitraemail.thakkar-jayesh.workers.dev/capture
+
+https://dash.cloudflare.com/f41becc4db9dc03f91d9abf2c15f7915/workers/kv/namespaces/d7f4fbc40d4a40fcb1f04b202b19efac/metrics?time-window=1440

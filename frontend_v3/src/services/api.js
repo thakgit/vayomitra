@@ -12,7 +12,7 @@ const BASE = RAW_BASE.replace(/\/+$/, "");
 function url(path, params) {
   // Add bypass flag only if we're using the Netlify proxy (/api)
   const addBypass =
-    BASE.startsWith("/api") 
+    BASE.startsWith("/api")
       ? { "ngrok-skip-browser-warning": "true" }
       : {};
 

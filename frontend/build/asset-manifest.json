@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/static/css/main.5d1741a0.css",
+    "main.js": "/static/js/main.ec5265ac.js",
+    "static/media/vm-banner.png": "/static/media/vm-banner.b17ba6185ef525137999.png",
+    "static/media/vm-elder.png": "/static/media/vm-elder.2b81d911f14ce02be7f3.png",
+    "index.html": "/index.html",
+    "main.5d1741a0.css.map": "/static/css/main.5d1741a0.css.map",
+    "main.ec5265ac.js.map": "/static/js/main.ec5265ac.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5d1741a0.css",
+    "static/js/main.ec5265ac.js"
+  ]
+}

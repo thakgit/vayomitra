@@ -1,37 +1,42 @@
 // src/services/api.js
 
-// Works with either:
-// - REACT_APP_API_URL=/api  (Netlify proxy → ngrok)
-// - REACT_APP_API_URL=https://your-backend.example.com
-const RAW_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
-// normalize: no trailing slash
-const BASE = RAW_BASE.replace(/\/+$/, "");
+// Use ONE of these per environment:
+//   REACT_APP_API_URL=https://vayomitra.onrender.com   (recommended)
+//   REACT_APP_API_URL=/api                             (if using Netlify proxy)
+// Dev example: REACT_APP_API_URL=http://localhost:8000
+const RAW_BASE = (process.env.REACT_APP_API_URL || "http://localhost:8000").trim();
+const CLEAN_BASE = RAW_BASE.replace(/^=+/, "");   // strip accidental leading '='
+const BASE = CLEAN_BASE.replace(/\/+$/, "");      // strip trailing '/'
 
-// Helper to build URLs with query params (no new URL() needed)
-// Automatically adds ngrok-skip-browser-warning=true when using /api proxy
+
+// helper to build URL + query string
 function url(path, params) {
-  // Add bypass flag only if we're using the Netlify proxy (/api)
-  const addBypass =
-    BASE.startsWith("/api")
-      ? { "ngrok-skip-browser-warning": "true" }
-      : {};
+  const p = path.startsWith("/") ? path : `/${path}`;
 
-  // Merge bypass flag with provided params
-  const allParams = { ...(params || {}), ...addBypass };
+  // add bypass flag only when using a relative proxy like /api
+  const addBypass = BASE.startsWith("/api")
+    ? { "ngrok-skip-browser-warning": "true" }
+    : {};
 
-  const qs = Object.entries(allParams)
+  const all = { ...(params || {}), ...addBypass };
+  const qs = Object.entries(all)
     .filter(([, v]) => v !== undefined && v !== null && v !== "")
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join("&");
 
-  return `${BASE}${path.startsWith("/") ? "" : "/"}${path}${qs ? `?${qs}` : ""}`;
+  // IMPORTANT: don't produce CRA's "/=/" pattern — we return either:
+  // - absolute: "https://.../path?qs"
+  // - relative: "/api/path?qs"
+  return `${BASE}${p}${qs ? `?${qs}` : ""}`;
 }
 
+// Optional: warm up Render (no behavior change to app)
 export async function warmBackend() {
   try {
-    // cheap GET that also carries the bypass param via your url() helper
-    await fetch(url("/agent/tip", { period: "warmup", _t: Date.now() }), { cache: "no-store" });
-  } catch { /* ignore */ }
+    await fetch(url("/agent/tip", { period: "warmup", _t: Date.now() }), {
+      cache: "no-store",
+    });
+  } catch {}
 }
 
 // ---- Mood / Tips ----
@@ -125,7 +130,7 @@ export async function summarizeJournal(id, max_sents = 3) {
   return res.json();
 }
 
-// ---- Reminders ---- (unified; no localhost)
+// ---- Reminders ----
 export async function remindersAdd({ medicine, time_local, tz = "America/Chicago" }) {
   const res = await fetch(url("/reminders"), {
     method: "POST",
